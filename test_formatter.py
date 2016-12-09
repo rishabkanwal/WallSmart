@@ -1,11 +1,20 @@
+import sys
 import time
+
+def convertLetter(letter):
+    if letter == 'A':
+        return 1
+    elif letter == 'B':
+        return 2
+    else:
+        return 3
 
 # This While loop creates a dictionary with store information
 def parse_stores_csv():
     i = 0
     store_labels = []
     stores = {}
-    with open('stores.csv') as data:
+    with open(sys.argv[2]) as data:
         for line in data:
             formatted = line.strip().split(',')
             # print formatted
@@ -15,7 +24,7 @@ def parse_stores_csv():
             else:
                 # print formatted
                 stores[formatted[0]] = {};
-                stores[formatted[0]][store_labels[1]] = formatted[1]
+                stores[formatted[0]][store_labels[1]] = convertLetter(formatted[1])
                 stores[formatted[0]][store_labels[2]] = formatted[2]
             i += 1
     # print stores
@@ -27,8 +36,8 @@ def build_train():
     labels = []
     stores = parse_stores_csv()
     # This while loop
-    with open('test_stores.vw', 'w') as target:
-        with open('test.csv') as data:
+    with open(sys.argv[3], 'w') as target:
+        with open(sys.argv[1]) as data:
             for line in data:
                 formatted = line.rstrip('\n').split(',')
                 if i == 0:
@@ -56,11 +65,13 @@ def build_train():
                             if feature == 0:
                                 for key in stores[formatted[feature]]:
                                     # print key
-                                    output += key + ":" + stores[formatted[feature]][key] + " "
+                                    output += key + ":" + str(stores[formatted[feature]][key]) + " "
                     target.write(output + "\n")
                 i += 1
 
 def main():
+    if len(sys.argv) != 4:
+        print('Usage: python test_formatter.py <Test file> <Store file> <Output file>')
     build_train()
 
 if __name__ == "__main__":

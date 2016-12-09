@@ -15,9 +15,10 @@ with open(sys.argv[3],'w') as target1:
         if line.strip():
             target1.write(line)
 
-with open(sys.argv[4],'w') as target2:
-    for i in range(lastLine, len(data)):
-        line = data[i][1]
-        if line.strip():
-            target2.write(line)
+if float(sys.argv[1]) < 1.0:
+	with open(sys.argv[4],'w') as target2:
+	    for i in range(lastLine, len(data)):
+	        line = data[i][1]
+	        if line.strip():
+	            target2.write(line)
 
