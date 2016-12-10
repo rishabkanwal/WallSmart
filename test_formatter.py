@@ -50,9 +50,14 @@ def parse_features_csv():
                         if formatted[0] not in features:
                             features[formatted[0]] = {}
                     elif feature == 1:
-                            features[formatted[0]][formatted[1]] = {}
+                        features[formatted[0]][formatted[1]] = {}
+                        features[formatted[0]][formatted[1]]["MarkDown"] = 0
                     else:
-                        features[formatted[0]][formatted[1]][feature_labels[feature]] = formatted[feature]
+                        if feature_labels[feature][:8] == "MarkDown":
+                            if formatted[feature] != "NA":
+                                features[formatted[0]][formatted[1]]["MarkDown"] += float(formatted[feature])
+                        else:
+                            features[formatted[0]][formatted[1]][feature_labels[feature]] = formatted[feature]
             i += 1
     # print features
     return features
