@@ -17,17 +17,14 @@ def parse_stores_csv():
     with open(sys.argv[2]) as data:
         for line in data:
             formatted = line.strip().split(',')
-            # print formatted
             if i == 0:
                 for feature in range(0, len(formatted)):
                     store_labels.append(formatted[feature])
             else:
-                # print formatted
                 stores[formatted[0]] = {};
                 stores[formatted[0]][store_labels[1]] = convertLetter(formatted[1])
                 stores[formatted[0]][store_labels[2]] = formatted[2]
             i += 1
-    # print stores
     return stores
 
 def parse_features_csv():
@@ -37,37 +34,31 @@ def parse_features_csv():
     with open(sys.argv[3]) as data:
         for line in data:
             formatted = line.strip().split(',')
-            # print formatted
             if i == 0:
-                print formatted
-                # Don't want is holiday, we already have this
                 for feature in range(0, len(formatted)-1):
                     feature_labels.append(formatted[feature])
             else:
-                # print formatted
                 for feature in range(0, len(feature_labels)):
                     if feature == 0:
                         if formatted[0] not in features:
                             features[formatted[0]] = {}
                     elif feature == 1:
                         features[formatted[0]][formatted[1]] = {}
-                        # features[formatted[0]][formatted[1]]["MarkDown"] = 0
+                            # features[formatted[0]][formatted[1]]["MarkDown"] = 0
                     else:
-                        if feature_labels[feature][:8] == "MarkDown":
-                            continue
-                            # if formatted[feature] != "NA":
-                            #     features[formatted[0]][formatted[1]]["MarkDown"] += float(formatted[feature])
-                        else:
-                            features[formatted[0]][formatted[1]][feature_labels[feature]] = formatted[feature]
+                        features[formatted[0]][formatted[1]][feature_labels[feature]] = formatted[feature]
             i += 1
-    # print features
     return features
 
-def build_train():
+def build_train(doFeatures, doStores):
     i = 0
     labels = []
-    stores = parse_stores_csv()
-    features = parse_features_csv()
+    stores = ""
+    features = ""
+    if doStores:
+        stores = parse_stores_csv()
+    if doFeatures: 
+        features = parse_features_csv()
     # This while loop
     with open(sys.argv[4], 'w') as target:
         with open(sys.argv[1]) as data:
@@ -83,7 +74,6 @@ def build_train():
                             continue
                         elif feature == 2:
                             parsed_date = formatted[feature].split("-")
-                            # print parsed_date
                             year = str(int(parsed_date[0]) - 2010)
                             output += "Year:" + year + " "
                             day_in_year = str(time.strptime(formatted[feature],"%Y-%m-%d").tm_yday)
@@ -96,22 +86,32 @@ def build_train():
                         else:
                             output += labels[feature] + ":" + formatted[feature] + " "
                             if feature == 0:
-                                for key in stores[formatted[feature]]:
-                                    # print key
-                                    output += key + ":" + str(stores[formatted[feature]][key]) + " "
-                                for key in features[formatted[feature]][formatted[2]]:
-                                    key_val = features[formatted[feature]][formatted[2]][key]
-                                    if key_val == "NA":
-                                        key_val = 0
-                                    output += key + ":" + str(key_val) + " "
+                                if doStores:
+                                    for key in stores[formatted[feature]]:
+                                        # print key
+                                        output += key + ":" + str(stores[formatted[feature]][key]) + " "
+                                if doFeatures:
+                                    for key in features[formatted[feature]][formatted[2]]:
+                                        key_val = features[formatted[feature]][formatted[2]][key]
+                                        if key_val == "NA":
+                                            key_val = 0
+                                        output += key + ":" + str(key_val) + " "
                     target.write(output + "\n")
                 i += 1
 
 def main():
-    if len(sys.argv) != 5:
+    if not (len(sys.argv) >= 5 and len(sys.argv) <= 6):
         print('Usage: python train_formatter.py <Test file> <Store file> <Features File> <Output file>')
         return
-    build_train()
+    if len(sys.argv) == 5:
+        build_train(False, False)
+    elif len(sys.argv) == 6:
+        if sys.argv[5] == '-f':
+            build_train(True, False)
+        elif sys.argv[5] == 's':
+            build_train(False, True)
+        elif sys.argv[5] == '-fs':
+            build_train(True, True)
 
 if __name__ == "__main__":
     main()
